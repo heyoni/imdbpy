@@ -94,26 +94,17 @@ def canonicalName(name):
     if name.find(', ') != -1:
         return name
     joiner = '%s, %s'
-    sur_joiner = '%s %s'
-    sur_space = ' %s'
     space = ' '
     sname = name.split(' ')
     lsname = [x.lower() for x in sname]
-    snl = len(sname)
-    _name_prefix = []
-    _name_suffix = []
-    _sname_prefix = []
-    _sname_suffix = []
     for prefix in _preffixes:
         if prefix in lsname:
             _idx = lsname.index(prefix)
             sname[_idx] = space.join((sname[_idx], sname[_idx + 1]))
-            # _name_prefix.append(sname.pop(_idx))
     for suffix in _suffixes:
         if suffix in lsname:
             _idx = lsname.index(suffix)
             sname[_idx - 1] = space.join((sname[_idx - 1], sname.pop(_idx)))
-            # sname[_idx - 1](sname.pop(_idx))
     name = joiner % (sname[-1], sname[0])
     return name
 
