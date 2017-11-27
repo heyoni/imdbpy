@@ -73,8 +73,9 @@ re_episode_info = re.compile(
 )
 
 # Common suffixes in surnames.
-_sname_suffixes = ('de', 'la', 'der', 'den', 'del', 'y', 'da', 'van',
-                   'e', 'von', 'the', 'di', 'du', 'el', 'al')
+_preffixes = ('de', 'la', 'der', 'den', 'del', 'y', 'da', 'van',
+                   'e', 'von', 'the', 'di', 'du', 'el', 'al', 'jr')
+_suffixes = ('jr', 'jr.')
 
 
 def canonicalName(name):
@@ -97,38 +98,23 @@ def canonicalName(name):
     sur_space = ' %s'
     space = ' '
     sname = name.split(' ')
+    lsname = [x.lower() for x in sname]
     snl = len(sname)
-    if snl == 2:
-        # Just a name and a surname: how boring...
-        name = joiner % (sname[1], sname[0])
-    elif snl > 2:
-        lsname = [x.lower() for x in sname]
-        if snl == 3:
-            _indexes = (0, snl - 2)
-        else:
-            _indexes = (0, snl - 2, snl - 3)
-        # Check for common surname prefixes at the beginning and near the end.
-        for index in _indexes:
-            if lsname[index] not in _sname_suffixes:
-                continue
-            try:
-                # Build the surname.
-                surn = sur_joiner % (sname[index], sname[index + 1])
-                del sname[index]
-                del sname[index]
-                try:
-                    # Handle the "Jr." after the name.
-                    if lsname[index + 2].startswith('jr'):
-                        surn += sur_space % sname[index]
-                        del sname[index]
-                except (IndexError, ValueError):
-                    pass
-                name = joiner % (surn, space.join(sname))
-                break
-            except ValueError:
-                continue
-        else:
-            name = joiner % (sname[-1], space.join(sname[:-1]))
+    _name_prefix = []
+    _name_suffix = []
+    _sname_prefix = []
+    _sname_suffix = []
+    for prefix in _preffixes:
+        if prefix in lsname:
+            _idx = lsname.index(prefix)
+            sname[_idx] = space.join((sname[_idx], sname[_idx + 1]))
+            # _name_prefix.append(sname.pop(_idx))
+    for suffix in _suffixes:
+        if suffix in lsname:
+            _idx = lsname.index(suffix)
+            sname[_idx - 1] = space.join((sname[_idx - 1], sname.pop(_idx)))
+            # sname[_idx - 1](sname.pop(_idx))
+    name = joiner % (sname[-1], sname[0])
     return name
 
 
